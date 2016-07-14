@@ -114,6 +114,12 @@ public class AddProduto extends javax.swing.JFrame {
 
         jLabel4.setText("Validade");
 
+        txtCadastroNome.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtCadastroNomeActionPerformed(evt);
+            }
+        });
+
         btnRemover.setText("Remover");
         btnRemover.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -152,16 +158,15 @@ public class AddProduto extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jLabel4)
                         .addGap(56, 56, 56))
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addGroup(layout.createSequentialGroup()
-                            .addGap(6, 6, 6)
-                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 530, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGroup(layout.createSequentialGroup()
-                            .addComponent(btnCadastroProduto)
-                            .addGap(18, 18, 18)
-                            .addComponent(btnRemover)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                            .addComponent(btnAtualizar))))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(6, 6, 6)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 530, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(btnCadastroProduto)
+                        .addGap(18, 18, 18)
+                        .addComponent(btnRemover)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(btnAtualizar)))
                 .addGap(23, 23, 23))
         );
         layout.setVerticalGroup(
@@ -283,6 +288,10 @@ public class AddProduto extends javax.swing.JFrame {
             readJTable();
         }
     }//GEN-LAST:event_btnAtualizarActionPerformed
+
+    private void txtCadastroNomeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtCadastroNomeActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtCadastroNomeActionPerformed
 
     /**
      * @param args the command line arguments
