@@ -7,6 +7,7 @@ package Controller;
 
 import Connection.ConnectionFactory;
 import Model.Dinheiro;
+import Model.Produto;
 import com.mysql.jdbc.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -21,9 +22,10 @@ import javax.swing.JOptionPane;
  */
 public class ControllerDinheiro {
     
-    public int[] fetch_db(){
-        int bq_cinquenta = 0,bq_um =0,bq_cinco = 0,bq_dez=0;
-        final int[] bq = new int[4];
+    public List<Dinheiro> read(){
+       
+        List<Dinheiro> dinheiros = new ArrayList<>();
+        
         java.sql.Connection con = null;
 		try {
 			con = (java.sql.Connection) ConnectionFactory.getConnection();
@@ -37,14 +39,11 @@ public class ControllerDinheiro {
 			stmt = con.prepareStatement("SELECT * FROM Dinheiro1");
 			rs = stmt.executeQuery();
                         while(rs.next()){
-                            bq_cinquenta = rs.getInt(2);
-                            bq[0] = bq_cinquenta;
-                            bq_um = rs.getInt(3);
-                            bq[1] = bq_um;
-                            bq_cinco = rs.getInt(4);
-                            bq[2] = bq_cinco;
-                            bq_dez = rs.getInt(5);
-                            bq[3] = bq_dez;
+                            Dinheiro dinheiro = new Dinheiro();
+                            dinheiro.setId(rs.getInt(1));
+                            dinheiro.setValue(rs.getDouble(2));
+                            dinheiro.setQtd(rs.getInt(3));
+                            dinheiros.add(dinheiro);
                         }
                         
 		}catch(SQLException ex){
@@ -52,12 +51,11 @@ public class ControllerDinheiro {
 		}finally{
 			ConnectionFactory.closeConnection((com.mysql.jdbc.Connection) con, stmt, rs);
 		}
-        return bq;
+        return dinheiros;
     }
     
-    public void update_dinheiro(Dinheiro d, int qtd_cinquenta, int qtd_um, int qtd_cinco, int qtd_dez){
-            int[] bq = fetch_db();
-		Connection con = null; 
+    public void update_dinheiro(Dinheiro d){
+            	Connection con = null; 
 		try {
 			con = (Connection) ConnectionFactory.getConnection();
 		} catch (SQLException e) {
@@ -68,15 +66,11 @@ public class ControllerDinheiro {
 		PreparedStatement stmt = null;
 		
 		try {
-			stmt = con.prepareStatement("UPDATE `Dinheiro1` SET `id`=?,`0.50`=?,`1.00`=?,`5.00`=?,`10.00`=? WHERE 1");
-                        stmt.setInt(1,1);
-			stmt.setInt(2,d.getCinquenta_centavos()+bq[0]);
-			stmt.setInt(3,d.getUm_real()+bq[1]);
-			stmt.setInt(4,d.getCinco_reais()+bq[2]);
-			stmt.setInt(5,d.getDez_reais()+bq[3]);
-                        
+			stmt = con.prepareStatement("UPDATE `Dinheiro1` SET `value`=?,`qtd`=? WHERE id = ?");
+			stmt.setDouble(1,d.getValue());
+			stmt.setInt(2,d.getQtd());
+			stmt.setInt(3,d.get_id());
 			stmt.executeUpdate();
-			JOptionPane.showMessageDialog(null, "Atualizado com sucesso!");
 		} catch (SQLException e) {
 			JOptionPane.showMessageDialog(null, "erro ao atualizar: " + e);
 		}finally{
@@ -84,5 +78,76 @@ public class ControllerDinheiro {
 		}
                 
     }
+    
+    public List<Double> calculaTroco(double totalinserido, double totalproduto, List<Dinheiro> dinheiros){
+        
+        double totaltroco = totalinserido - totalproduto;
+        
+        List<Double> troco = new ArrayList<>();
+        List<Dinheiro> dinheiros1 = dinheiros;
+    
+        while(totaltroco >= 10 && dinheiros1.get(3).getQtd() >= 1){
+            dinheiros1.get(3).setQtd(dinheiros1.get(3).getQtd() - 1);
+            troco.add(10.0);
+            totaltroco = totaltroco - 10;
+        }
+        
+        while(totaltroco >= 5 && dinheiros1.get(2).getQtd() >= 1){
+            dinheiros1.get(2).setQtd(dinheiros1.get(2).getQtd() - 1);
+            troco.add(5.0);
+            totaltroco = totaltroco - 5;
+        }
+        
+        while(totaltroco >= 1 && dinheiros1.get(1).getQtd() >= 1){
+            dinheiros1.get(1).setQtd(dinheiros1.get(1).getQtd() - 1);
+            troco.add(1.0);
+            totaltroco = totaltroco - 1;
+        }
+        
+        while(totaltroco >= 0.5 && dinheiros1.get(0).getQtd() >= 1){
+            dinheiros1.get(0).setQtd(dinheiros1.get(0).getQtd() - 1);
+            troco.add(0.5);
+            totaltroco = totaltroco - 0.5;
+            
+        }
+         
+        if(totaltroco == 0.0){ 
+            this.update_dinheiro(dinheiros1.get(3));
+            this.update_dinheiro(dinheiros1.get(2));
+            this.update_dinheiro(dinheiros1.get(1));
+            this.update_dinheiro(dinheiros1.get(0));  
+        }else{
+            troco.clear();
+            troco.add(-1.0);
+        }
+        
+        if(totaltroco == 0.0 && totalproduto == totalinserido){
+            troco.add(0.0);
+        }
+        
+        return troco;
+    }
 
+    public int compra(Double totaldinheiro, Produto p){
+        int Status  = 0; 
+        ControllerProduto cProduto = new ControllerProduto();
+        
+        if(totaldinheiro >= p.getPreco()){
+            if(p.getQtd_atual() > 0){
+                p.setQtd_vendida(p.getQtd_vendida()+1);
+                p.setQtd_atual(p.getQtd_atual() - 1);   
+                cProduto.update(p);
+            }else{
+                Status = 1;
+            }    
+        }else{
+            Status = 2;
+        }
+       
+       return Status;
+    }
+
+    private void ArrayList() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 }

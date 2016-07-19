@@ -12,6 +12,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.JOptionPane;
 
 /**
@@ -20,6 +22,7 @@ import javax.swing.JOptionPane;
  */
 public class Admin extends javax.swing.JFrame {
     private Double totalInserido = 0.0;
+    private List<Dinheiro> dinheiros = new ArrayList<>();
     /**
      * Creates new form Admin
      */
@@ -31,29 +34,15 @@ public class Admin extends javax.swing.JFrame {
     public void atualizarCampos(){
             totalInserido = 0.0;
                 Connection con = null;
-		try {
-			con = (Connection) ConnectionFactory.getConnection();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		PreparedStatement stmt = null;
-		ResultSet rs = null;
-		try{
-			stmt = con.prepareStatement("SELECT * FROM Dinheiro1");
-			rs = stmt.executeQuery();
-                        while(rs.next()){
-                            cinquenta_centavos.setText(String.valueOf(rs.getInt(2)));
-                            um_real.setText(String.valueOf(rs.getInt(3)));
-                            cinco_reais.setText(String.valueOf(rs.getInt(4)));
-                            dez_reais.setText(String.valueOf(rs.getInt(5)));
-                        }
-                        
-		}catch(SQLException ex){
-			System.out.println("Execao atualizar campos");
-		}finally{
-			ConnectionFactory.closeConnection((com.mysql.jdbc.Connection) con, stmt, rs);
-		}
+                
+                ControllerDinheiro cDinheiro = new ControllerDinheiro();
+                dinheiros = cDinheiro.read();
+		
+                            cinquenta_centavos.setText(String.valueOf(dinheiros.get(0).getQtd()));
+                            um_real.setText(String.valueOf(dinheiros.get(1).getQtd()));
+                            cinco_reais.setText(String.valueOf(dinheiros.get(2).getQtd()));
+                            dez_reais.setText(String.valueOf(dinheiros.get(3).getQtd()));
+              
     }
 
     /**
@@ -268,18 +257,30 @@ public class Admin extends javax.swing.JFrame {
     private void AddDinheiroActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AddDinheiroActionPerformed
         // TODO add your handling code here:
         
-        Dinheiro d  = new Dinheiro();
+        Dinheiro d1  = new Dinheiro();
+        Dinheiro d05  = new Dinheiro();
+        Dinheiro d5  = new Dinheiro();
+        Dinheiro d10  = new Dinheiro();
+        
         ControllerDinheiro ctr = new ControllerDinheiro();
-        d.setCinquenta_centavos(Integer.parseInt(cinquenta_centavos.getText()));
-        d.setUm_real(Integer.parseInt(um_real.getText()));
-        d.setCinco_reais(Integer.parseInt(cinco_reais.getText()));
-        d.setDez_reais(Integer.parseInt(dez_reais.getText()));
+        
+        d1.setId(1);
+        d1.setValue(0.5);
+        d1.setQtd(dinheiros.get(0).getQtd() + Integer.parseInt(cinquenta_centavos.getText()));
+        d05.setId(2);
+        d05.setValue(1);
+        d05.setQtd(dinheiros.get(1).getQtd() + Integer.parseInt(um_real.getText()));
+        d5.setId(3);
+        d5.setValue(5);
+        d5.setQtd(dinheiros.get(2).getQtd() +Integer.parseInt(cinco_reais.getText()));
+        d10.setId(4);
+        d10.setQtd(dinheiros.get(3).getQtd() + Integer.parseInt(dez_reais.getText()));
+        d10.setValue(10);
             
-            
-            ctr.update_dinheiro(d,Integer.parseInt(cinquenta_centavos.getText()),
-                    Integer.parseInt(um_real.getText()),
-                    Integer.parseInt(cinco_reais.getText()),
-                    Integer.parseInt(dez_reais.getText()));
+            ctr.update_dinheiro(d1);
+            ctr.update_dinheiro(d05);
+            ctr.update_dinheiro(d5);
+            ctr.update_dinheiro(d10);
             totalInserido = (Double.parseDouble(cinquenta_centavos.getText())*0.5)+
                             (Double.parseDouble(um_real.getText())*1)+
                             (Double.parseDouble(cinco_reais.getText())*5)+
@@ -312,31 +313,31 @@ public class Admin extends javax.swing.JFrame {
 
     private void EsvaziarTrocoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_EsvaziarTrocoActionPerformed
         // TODO add your handling code here:
-        com.mysql.jdbc.Connection con = null; 
-		try {
-			con = (com.mysql.jdbc.Connection) ConnectionFactory.getConnection();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		PreparedStatement stmt = null;
-		
-		try {
-			stmt = con.prepareStatement("UPDATE `Dinheiro1` SET `id`=?,`0.50`=?,`1.00`=?,`5.00`=?,`10.00`=? WHERE 1");
-                        stmt.setInt(1,1);
-			stmt.setInt(2,0);
-			stmt.setInt(3,0);
-			stmt.setInt(4,0);
-			stmt.setInt(5,0);
-                        
-			stmt.executeUpdate();
-			JOptionPane.showMessageDialog(null, "Bandeja Esvaziada!");
-		} catch (SQLException e) {
-			JOptionPane.showMessageDialog(null, "Erro ao esvaziar " + e);
-		}finally{
-			ConnectionFactory.closeConnection(con, stmt);
-		}
+        
+        ControllerDinheiro ctrDinheiro = new ControllerDinheiro();
+        Dinheiro d05 = new Dinheiro();
+        d05.setId(1);
+        d05.setValue(0.0);
+        d05.setValue(0.5);
+        Dinheiro d1 = new Dinheiro();
+        d1.setId(2);
+        d1.setValue(0.0);
+        d1.setValue(1);
+        Dinheiro d5 = new Dinheiro();
+        d5.setId(3);
+        d5.setValue(0.0);
+        d5.setValue(5);
+        Dinheiro d10 = new Dinheiro();
+        d10.setId(4);
+        d10.setValue(0.0);
+        d10.setValue(10);
+        
+        ctrDinheiro.update_dinheiro(d05);
+        ctrDinheiro.update_dinheiro(d1);
+        ctrDinheiro.update_dinheiro(d5);
+        ctrDinheiro.update_dinheiro(d10);
+        
+        atualizarCampos();
     }//GEN-LAST:event_EsvaziarTrocoActionPerformed
 
     /**
